@@ -21,20 +21,40 @@ export default function SignupPage() {
 
     // OTP States
     const [otp, setOtp] = useState(["", "", "", ""]);
+    const [generatedOtp, setGeneratedOtp] = useState("");
     const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleInitialSubmit = (e: React.FormEvent) => {
+    const handleInitialSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        // Simulate API call to send OTP
-        setTimeout(() => {
+
+        // Generate a random 4-digit OTP
+        const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+        setGeneratedOtp(newOtp);
+
+        try {
+            const response = await fetch('/api/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: formData.email, otp: newOtp }),
+            });
+
+            if (response.ok) {
+                setStep("otp");
+            } else {
+                const data = await response.json();
+                alert(data.error || "Failed to send OTP. Please check your email configuration.");
+            }
+        } catch (error) {
+            console.error("Signup Error:", error);
+            alert("An error occurred. Please try again later.");
+        } finally {
             setLoading(false);
-            setStep("otp");
-        }, 1500);
+        }
     };
 
     const handleOtpChange = (index: number, value: string) => {
@@ -58,15 +78,15 @@ export default function SignupPage() {
 
     const verifyOtp = () => {
         setLoading(true);
-        // Simulate OTP verification
+        // Verify against generated OTP
         setTimeout(() => {
-            if (otp.join("") === "1234") {
+            if (otp.join("") === generatedOtp) {
                 setStep("success");
                 setTimeout(() => {
                     router.push("/");
                 }, 2000);
             } else {
-                alert("Invalid OTP! Try 1234");
+                alert(`Invalid OTP! Please check your email.`);
                 setLoading(false);
             }
         }, 1500);
