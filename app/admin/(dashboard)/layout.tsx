@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Ticket, Users, Settings, LogOut, Plane, Building, Package, Sparkles } from "lucide-react";
+import { LayoutDashboard, Ticket, Users, Settings, LogOut, Plane, Building, Package, Sparkles, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function AdminLayout({
@@ -21,6 +21,7 @@ export default function AdminLayout({
         { name: "Hotels", href: "/admin/hotels", icon: Building },
         { name: "Packages", href: "/admin/packages", icon: Package },
         { name: "Users", href: "/admin/users", icon: Users },
+        { name: "Reviews", href: "/admin/reviews", icon: MessageSquare },
         { name: "Settings", href: "/admin/settings", icon: Settings },
     ];
 
