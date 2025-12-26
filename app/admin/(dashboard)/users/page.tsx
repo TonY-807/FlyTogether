@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, User, ShieldCheck, Mail, Lock, Unlock, Trash2, X } from "lucide-react";
+import { Plus, Search, User, ShieldCheck, Mail, Lock, Unlock, Trash2, X, Globe, Chrome, UserCheck, UserPlus, Users } from "lucide-react";
 
 const INITIAL_USERS = [
-    { id: 1, name: "John Doe", email: "john@example.com", status: "Active", role: "Passenger", joined: "Oct 12, 2024" },
-    { id: 2, name: "Sarah Smith", email: "sarah@startup.com", status: "Active", role: "Admin", joined: "Oct 15, 2024" },
-    { id: 3, name: "Mike Johnson", email: "mike@travel.org", status: "Blocked", role: "Passenger", joined: "Oct 18, 2024" },
+    { id: 1, name: "John Doe", email: "john@example.com", status: "Active", role: "Passenger", joined: "Oct 12, 2024", method: "Email", location: "New York, USA" },
+    { id: 2, name: "Sarah Smith", email: "sarah@startup.com", status: "Active", role: "Admin", joined: "Oct 15, 2024", method: "Google", location: "London, UK" },
+    { id: 3, name: "Mike Johnson", email: "mike@travel.org", status: "Blocked", role: "Passenger", joined: "Oct 18, 2024", method: "Email", location: "Mumbai, India" },
 ];
 
 export default function AdminUsers() {
     const [users, setUsers] = useState(INITIAL_USERS);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const toggleBlock = (id: number) => {
         setUsers(prev => prev.map(u => {
@@ -37,67 +38,112 @@ export default function AdminUsers() {
             email: formData.get("email") as string,
             status: "Active",
             role: "Passenger",
-            joined: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+            joined: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            method: "Manual",
+            location: "Admin Portal"
         };
         setUsers(prev => [newUser, ...prev]);
         setShowAddModal(false);
     };
+
+    const filteredUsers = users.filter(u =>
+        u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        u.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center text-white">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-white">
                 <div>
-                    <h1 className="text-2xl font-bold">User Management</h1>
-                    <p className="text-gray-500 text-sm">Monitor user activity, manage roles, and enforce security policies.</p>
+                    <h1 className="text-2xl font-bold">Registration Logs</h1>
+                    <p className="text-gray-500 text-sm">Real-time overview of users joining the platform.</p>
                 </div>
-                <button
-                    onClick={() => setShowAddModal(true)}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
-                >
-                    <Plus className="w-4 h-4" /> Add New User
-                </button>
+                <div className="flex gap-3">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search signups..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="bg-zinc-800 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 ring-indigo-500/50 w-64"
+                        />
+                    </div>
+                    <button
+                        onClick={() => setShowAddModal(true)}
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
+                    >
+                        <Plus className="w-4 h-4" /> Add User
+                    </button>
+                </div>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {[
+                    { label: "Total Signups", value: users.length, icon: Users, color: "text-indigo-400" },
+                    { label: "Active Today", value: "12", icon: UserCheck, color: "text-green-400" },
+                    { label: "Google Users", value: users.filter(u => u.method === "Google").length, icon: Chrome, color: "text-orange-400" },
+                    { label: "Pending Verification", value: "0", icon: UserPlus, color: "text-yellow-400" }
+                ].map((stat, i) => (
+                    <div key={i} className="bg-zinc-900 border border-white/10 p-4 rounded-2xl">
+                        <div className="flex justify-between items-start mb-2">
+                            <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Growth</span>
+                        </div>
+                        <p className="text-2xl font-black text-white">{stat.value}</p>
+                        <p className="text-xs text-gray-500 font-medium">{stat.label}</p>
+                    </div>
+                ))}
             </div>
 
             <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden text-white">
                 <table className="w-full text-left">
                     <thead className="bg-gray-50 dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700">
                         <tr>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">User / Role</th>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Email</th>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Joined Date</th>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">User Profile</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Contact</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Signed Up</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Method & Location</th>
                             <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
-                        {users.map((user) => (
+                        {filteredUsers.map((user) => (
                             <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-zinc-800 flex items-center justify-center">
+                                        <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
                                             <User className="w-5 h-5 text-indigo-600" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-gray-900 dark:text-white">{user.name}</p>
-                                            <div className="flex items-center gap-1">
-                                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${user.role === 'Admin' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-gray-400'
-                                                    }`}>
-                                                    {user.role}
-                                                </span>
-                                            </div>
+                                            <p className="font-bold text-gray-900 dark:text-white leading-none mb-1">{user.name}</p>
+                                            <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${user.role === 'Admin' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-gray-400'}`}>
+                                                {user.role}
+                                            </span>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                        <Mail className="w-4 h-4" /> {user.email}
+                                        <Mail className="w-3.5 h-3.5" /> {user.email}
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 text-sm font-medium text-gray-500">{user.joined}</td>
                                 <td className="px-6 py-4">
-                                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${user.status === 'Active' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
-                                        }`}>
-                                        {user.status}
+                                    <p className="text-sm font-medium text-gray-500">{user.joined}</p>
+                                    <span className={`text-[10px] font-bold uppercase tracking-wider ${user.status === 'Active' ? 'text-green-500' : 'text-red-500'}`}>
+                                        • {user.status}
                                     </span>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-1.5 text-xs text-indigo-400 font-bold">
+                                            {user.method === 'Google' ? <Chrome className="w-3 h-3" /> : <Mail className="w-3 h-3" />}
+                                            {user.method}
+                                        </div>
+                                        <div className="flex items-center gap-1.5 text-[10px] text-gray-500 font-medium">
+                                            <Globe className="w-3 h-3" /> {user.location}
+                                        </div>
+                                    </div>
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end gap-2">
