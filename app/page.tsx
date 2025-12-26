@@ -6,9 +6,56 @@ import { ArrowUpRight, Star, Quote } from "lucide-react";
 
 import Link from "next/link";
 import { SlidingNav } from "@/components/sliding-nav";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+
+const INITIAL_REVIEWS = [
+  {
+    name: "Alex Rivera",
+    role: "Frequent Flyer",
+    text: "The AI price prediction is a game changer. Saved ₹15,000 on my last trip to Tokyo. The interface is just breathtaking.",
+    rating: 5,
+    image: "https://i.pravatar.cc/150?u=alex"
+  },
+  {
+    name: "Sarah Chen",
+    role: "Luxury Traveler",
+    text: "FlyTogether makes complex bookings feel like a breeze. The hotel recommendations were spot on for my Bali getaway.",
+    rating: 5,
+    image: "https://i.pravatar.cc/150?u=sarah"
+  },
+  {
+    name: "James Wilson",
+    role: "Digital Nomad",
+    text: "Customer support is lightning fast. Had a flight change and it was resolved in minutes. Highly recommended!",
+    rating: 5,
+    image: "https://i.pravatar.cc/150?u=james"
+  }
+];
 
 export default function Home() {
+  const [reviews, setReviews] = useState(INITIAL_REVIEWS);
+  const [newReview, setNewReview] = useState({ name: "", text: "", rating: 5 });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Simulate API delay
+    setTimeout(() => {
+      const reviewToAdd = {
+        ...newReview,
+        role: "Verified Traveler",
+        image: `https://i.pravatar.cc/150?u=${newReview.name}`,
+      };
+
+      setReviews([reviewToAdd, ...reviews]);
+      setNewReview({ name: "", text: "", rating: 5 });
+      setIsSubmitting(false);
+      alert("Thank you! Your review has been added to our community wall.");
+    }, 1000);
+  };
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar Placeholder */}
@@ -187,57 +234,102 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Alex Rivera",
-                role: "Frequent Flyer",
-                text: "The AI price prediction is a game changer. Saved ₹15,000 on my last trip to Tokyo. The interface is just breathtaking.",
-                rating: 5,
-                image: "https://i.pravatar.cc/150?u=alex"
-              },
-              {
-                name: "Sarah Chen",
-                role: "Luxury Traveler",
-                text: "FlyTogether makes complex bookings feel like a breeze. The hotel recommendations were spot on for my Bali getaway.",
-                rating: 5,
-                image: "https://i.pravatar.cc/150?u=sarah"
-              },
-              {
-                name: "James Wilson",
-                role: "Digital Nomad",
-                text: "Customer support is lightning fast. Had a flight change and it was resolved in minutes. Highly recommended!",
-                rating: 5,
-                image: "https://i.pravatar.cc/150?u=james"
-              }
-            ].map((review, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white/5 border border-white/10 p-8 rounded-[32px] backdrop-blur-xl hover:bg-white/10 transition-all duration-500 group"
-              >
-                <Quote className="w-10 h-10 text-indigo-500/20 mb-6 group-hover:text-indigo-500/40 transition-colors" />
-                <p className="text-lg text-white/80 mb-8 font-medium leading-relaxed italic">
-                  "{review.text}"
-                </p>
-                <div className="flex items-center gap-4">
-                  <img src={review.image} alt={review.name} className="w-12 h-12 rounded-full ring-2 ring-white/10" />
-                  <div>
-                    <h4 className="font-bold text-white">{review.name}</h4>
-                    <p className="text-xs text-white/40 font-bold uppercase tracking-wider">{review.role}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+            <AnimatePresence mode="popLayout">
+              {reviews.map((review, i) => (
+                <motion.div
+                  key={review.name + i}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="bg-white/5 border border-white/10 p-8 rounded-[32px] backdrop-blur-xl hover:bg-white/10 transition-all duration-500 group"
+                >
+                  <Quote className="w-10 h-10 text-indigo-500/20 mb-6 group-hover:text-indigo-500/40 transition-colors" />
+                  <p className="text-lg text-white/80 mb-8 font-medium leading-relaxed italic">
+                    "{review.text}"
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <img src={review.image} alt={review.name} className="w-12 h-12 rounded-full ring-2 ring-white/10" />
+                    <div>
+                      <h4 className="font-bold text-white">{review.name}</h4>
+                      <p className="text-xs text-white/40 font-bold uppercase tracking-wider">{review.role}</p>
+                    </div>
+                    <div className="ml-auto flex gap-0.5">
+                      {[...Array(review.rating)].map((_, j) => (
+                        <Star key={j} className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                      ))}
+                    </div>
                   </div>
-                  <div className="ml-auto flex gap-0.5">
-                    {[...Array(review.rating)].map((_, j) => (
-                      <Star key={j} className="w-3 h-3 fill-yellow-500 text-yellow-500" />
-                    ))}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+
+          {/* Review Submission Form */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-3xl mx-auto"
+          >
+            <div className="bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 border border-white/10 p-8 md:p-12 rounded-[48px] backdrop-blur-2xl shadow-2xl">
+              <div className="text-center mb-10">
+                <h3 className="text-3xl font-bold mb-2">Share Your Story</h3>
+                <p className="text-white/50">Your feedback helps us make FlyTogether better for everyone.</p>
+              </div>
+
+              <form onSubmit={handleReviewSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-indigo-400 ml-2">Display Name</label>
+                    <input
+                      required
+                      type="text"
+                      placeholder="e.g. John Doe"
+                      value={newReview.name}
+                      onChange={(e) => setNewReview({ ...newReview, name: e.target.value })}
+                      className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-indigo-400 ml-2">Rating</label>
+                    <div className="flex gap-2 bg-black/40 border border-white/10 rounded-2xl py-4 px-6">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setNewReview({ ...newReview, rating: s })}
+                          className="hover:scale-125 transition-transform"
+                        >
+                          <Star className={`w-6 h-6 ${s <= newReview.rating ? 'fill-yellow-500 text-yellow-500' : 'text-white/10'}`} />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-indigo-400 ml-2">Your Experience</label>
+                  <textarea
+                    required
+                    rows={4}
+                    placeholder="Tell us about your trip..."
+                    value={newReview.text}
+                    onChange={(e) => setNewReview({ ...newReview, text: e.target.value })}
+                    className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500 transition-all resize-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-white text-black font-black py-5 rounded-2xl text-xl hover:bg-indigo-400 hover:text-white transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                >
+                  {isSubmitting ? "Posting..." : "Post Review"}
+                </button>
+              </form>
+            </div>
+          </motion.div>
         </div>
       </section>
 
