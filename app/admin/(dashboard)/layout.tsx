@@ -31,10 +31,10 @@ export default function AdminLayout({
     };
 
     return (
-        <div className="flex h-screen bg-gray-100 dark:bg-zinc-950">
+        <div className="flex h-screen bg-[#02040a] dark:bg-[#02040a] selection:bg-indigo-500/30">
             {/* Sidebar */}
-            <aside className="w-64 bg-white dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-800 flex flex-col">
-                <div className="h-20 flex items-center px-8 border-b border-gray-200 dark:border-zinc-800">
+            <aside className="w-64 bg-[#090c14] dark:bg-[#090c14] border-r border-white/[0.05] flex flex-col relative z-20 shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
+                <div className="h-20 flex items-center px-8 border-b border-white/[0.05]">
                     <Link href="/admin" className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
                             <Sparkles className="w-6 h-6 text-white" />
@@ -66,7 +66,7 @@ export default function AdminLayout({
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-gray-200 dark:border-zinc-800">
+                <div className="p-4 border-t border-white/[0.05]">
                     <button
                         onClick={handleLogout}
                         className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
@@ -78,13 +78,13 @@ export default function AdminLayout({
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto">
-                <header className="h-16 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between px-8">
+            <main className="flex-1 overflow-y-auto relative bg-[radial-gradient(circle_at_top_right,rgba(79,70,229,0.08),transparent_500px)]">
+                <header className="h-16 bg-[#090c14]/40 backdrop-blur-xl border-b border-white/[0.05] flex items-center justify-between px-8 sticky top-0 z-10">
                     <h2 className="font-semibold text-lg">
                         {navigation.find(n => n.href === pathname)?.name || 'Dashboard'}
                     </h2>
                     <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-zinc-800 flex items-center justify-center font-bold text-gray-500">
+                        <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold text-gray-400">
                             AD
                         </div>
                     </div>
